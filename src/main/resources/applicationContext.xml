@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:mvc="http://www.springframework.org/schema/cache"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--扫描数据库配置文件-->
+    <context:property-placeholder location="classpath:db.properties"/>
+    <!--按注解扫描，除了controller-->
+    <context:component-scan base-package="com.sxt.ytwl" use-default-filters="true">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+    </context:component-scan>
+    <!--阿里巴巴数据库连接池-->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="password" value="${db.password}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="url" value="${db.url}"/>
+    </bean>
+    <!--mybatis 两个bean-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.sxt.ytwl.model"/>
+        <property name="mapperLocations">
+            <list>
+                <value>classpath*:com/sxt/ytwl/mapper/*.xml</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.sxt.ytwl.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+    <!--事务配置3个东西，第一个 事务管理器,第二个 哪些方法需要事务管理 第三个 AOP配置切点,切点要切啥啊-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="add*"/>
+            <tx:method name="insert*"/>
+            <tx:method name="update*"/>
+            <tx:method name="delete*"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="pcl" expression="execution(* com.sxt.ytwl.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pcl"/>
+    </aop:config>
+    <bean class="com.sxt.ytwl.realm.LoginRealm" id="loginRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashIterations" value="1024"/>
+                <property name="hashAlgorithmName" value="SHA-512"/>
+            </bean>
+        </property>
+    </bean>
+    <!--spring配置shiro -->
+    <bean class="org.apache.shiro.web.mgt.DefaultWebSecurityManager" id="securityManager">
+        <property name="realm" ref="loginRealm"/>
+    </bean>
+    <bean class="org.apache.shiro.spring.web.ShiroFilterFactoryBean" id="shiroFilter">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/login"/>
+        <property name="filterChainDefinitions">
+            <value>
+                /doLogin=anon
+                /register=anon
+                /account=anon
+                /user/userbyid/**=authc
+                /user/updateUserById=authc
+                /task/**=authc,roles[承运业务员]
+                /truck/**=authc,roles[运输管理员]
+                /sche/**=authc,roles[调度员]
+                /user/**=authc,roles[系统管理员]
+                /**=authc
+            </value>
+        </property>
+    </bean>
+</beans>
