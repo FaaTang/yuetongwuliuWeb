@@ -6,7 +6,7 @@
        xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
     <!--扫描数据库配置文件-->
-    <context:property-placeholder location="classpath:db.properties"/>
+    <context:property-placeholder location="classpath:db2.properties"/>
     <!--按注解扫描，除了controller-->
     <context:component-scan base-package="com.sxt.ytwl" use-default-filters="true">
         <context:exclude-filter type="annotation"
@@ -66,12 +66,15 @@
         <property name="filterChainDefinitions">
             <value>
                 /doLogin=anon
+                /index.html=anon
+                /static/**=anon
                 /register=anon
                 /account=anon
                 /user/userbyid/**=authc
                 /user/updateUserById=authc
                 /task/**=authc,roles[承运业务员]
                 /truck/**=authc,roles[运输管理员]
+                /driver/**=authc,roles[运输管理员]
                 /sche/**=authc,roles[调度员]
                 /user/**=authc,roles[系统管理员]
                 /**=authc
