@@ -44,7 +44,7 @@ public class TruckController {
     @GetMapping("/deleteById")
     public RespBean deleteTruckById(Integer truckid){
         if (truckService.deleteTruckById(truckid)==1){
-            return RespBean.ok("删除成功");
+            return RespBean.ok("删除成功!");
         }
 
         return RespBean.error("删除失败");
