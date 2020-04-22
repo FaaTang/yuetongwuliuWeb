@@ -69,7 +69,5 @@ public class UserService {
         return userMapper.selectByPrimaryKey(userid);
     }
 
-  /*  public User getByAccountNR(String account) {
-        return userMapper.getByAccountNR(account);
-    }*/
+ 
 }

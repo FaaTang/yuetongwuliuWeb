@@ -29,6 +29,18 @@
     driverID, name, sex, birth, phone, IDCard, fk_teamID, state, remark, checkInTime, 
     isDelete, alterTime
   </sql>
+  <select id="getTotalDriver" resultType="java.lang.Long">
+    select count(*) from driver
+  </select>
+  <select id="getAllDriversByPage" resultMap="BaseResultMap">
+    select d.*,tt.* FROM driver d,truckteam tt where d.fk_teamID=tt.teamID
+      <if test="keyword!=null">
+        and d.name like concat('%',#{keyword},'%')
+      </if>
+    <if test="page!=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
       WARNING - @mbggenerated
