@@ -26,7 +26,7 @@ public class TruckController {
         if (truckService.addTruck(truck)==1){
             return RespBean.ok("添加成功!");
         }
-        return RespBean.error("添加失败");
+        return RespBean.error("添加失败!");
     }
     @GetMapping("/types")
     public List<String> getByTypes(){
