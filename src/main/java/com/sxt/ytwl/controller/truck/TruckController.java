@@ -47,7 +47,7 @@ public class TruckController {
             return RespBean.ok("删除成功!");
         }
 
-        return RespBean.error("删除失败");
+        return RespBean.error("删除失败!");
     }
 /*    @GetMapping("/queryById")
     public Truck queryById(Integer truckid){
